@@ -15,6 +15,25 @@ class Ghee
       #
       module Teams
 
+        # Orgs::Teams::Repos module handles all of the API endpoints
+        # for the set of repositories added to a Github Organization Team.
+        module Repos
+
+          # Repos::Proxy inherits from Ghee::Proxy and
+          # enables defining methods on the proxy object
+          #
+          class Proxy < ::Ghee::ResourceProxy
+
+            def add(owner, repository)
+              connection.put("#{path_prefix}/#{owner}/#{repository}").status == 204
+            end
+
+            def remove(owner, repository)
+              connection.delete("#{path_prefix}/#{owner}/#{repository}").status == 204
+            end
+          end
+        end
+
         # Orgs::Teams::Members module handles all of the Github Organization Teams members
         # API endpoints
         #
@@ -44,6 +63,11 @@ class Ghee
           def members(name=nil)
             prefix = name ? "#{path_prefix}/members/#{name}" : "#{path_prefix}/members"
             Ghee::API::Orgs::Teams::Members::Proxy.new(connection, prefix)
+          end
+
+          def repos(name=nil)
+            prefix = name ? "#{path_prefix}/repos/#{name}" : "#{path_prefix}/repos"
+            Ghee::API::Orgs::Teams::Repos::Proxy.new(connection, prefix)
           end
 
         end
